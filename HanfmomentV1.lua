@@ -1,30 +1,113 @@
--- 🎹 HanfmomentV1 JJSploit FIX - PC only, 100% kompatibel (spawn/wait, kein task/HttpGet)
--- Funktioniert in Visual Pianos, Piano Rooms etc. 2026 getestet!
--- Auto-startet See You Again nach 5s. Stop: Im JJSploit Console: playing = false
+--[[
+    Script: omamilch V5 (Test Version)
+    User: HanfmomentV1
+    Key: HanfmomentV1
+]]
 
-print("🎹 HanfmomentV1 JJSploit Edition lädt... Warte auf Piano...")
+-[span_0](start_span)- INITIALISIERUNG DER WERTE[span_0](end_span)
+shared.stop = false
+shared.ftime = 280 
+shared.delay = nil
+-[span_1](start_span)- Hier ist dein Test-Song direkt als Standard hinterlegt[span_1](end_span)
+shared.scr = "hlz[zt] [xo] [xd] o s|lzx[zuh] [va] [vf] a h|vbn[vpnl] [mf]" 
 
-local prompts = {}
-local speed = 2.0  -- Perfekt für See You Again (ändern: speed = 1.5)
-local voice = true  -- Chat-Voice an (Roblox Settings > Accessibility > TTS On)
-local playing = false
+local Title = "omamilch V5 | Test-Mode"
+local vs = game:GetService("VirtualUser")
 
--- Chat TTS (Voice)
-local chatService
-pcall(function()
-    local chatEvents = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
-    if chatEvents then
-        chatService = chatEvents:FindFirstChild("SayMessageRequest")
+-- UI LIBRARY LADEN
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib(Title, "Midnight")
+
+-[span_2](start_span)- PLAYER LOGIK (Optimiert aus deinem Quellcode)[span_2](end_span)
+local function startAutoplayer()
+    local str = shared.scr
+    local nstr = string.gsub(str, "[[\]\n]", "")
+    local delay = shared.delay or (shared.ftime / (string.len(nstr) / 1.05))
+    
+    local queue = ""
+    local rem = true
+
+    for i = 1, #str do
+        if shared.stop == true then 
+            print("Playback gestoppt von HanfmomentV1")
+            break 
+        end
+        
+        local c = str:sub(i, i)
+        
+        -[span_3](start_span)- Akkord-Erkennung[span_3](end_span)
+        if c == "[" then
+            rem = false
+            continue
+        elseif c == "]" then
+            rem = true
+            for ii = 1, #queue do
+                local cc = queue:sub(ii, ii)
+                vs:SetKeyDown(cc)
+                task.wait()
+            end
+            task.wait()
+            for ii = 1, #queue do
+                local cc = queue:sub(ii, ii)
+                vs:SetKeyUp(cc)
+                task.wait()
+            end
+            queue = ""
+            task.wait(delay)
+            continue
+        elseif c == " " then
+            task.wait(delay)
+            continue
+        elseif c == "|" then
+            task.wait(delay * 2)
+            continue
+        end
+        
+        if not rem then
+            queue = queue .. c
+            continue
+        end
+        
+        -[span_4](start_span)- Einzelne Taste[span_4](end_span)
+        vs:SetKeyDown(c)
+        task.wait()
+        vs:SetKeyUp(c)
+        task.wait(delay)
     end
+end
+
+-- GUI TABS
+local Main = Window:NewTab("Test & Play")
+local ControlSection = Main:NewSection("HanfmomentV1 Control Panel")
+
+-- START BUTTON
+ControlSection:NewButton("Start Test-Song", "Spielt den hinterlegten Song ab", function()
+    shared.stop = false
+    print("Starte omamilch V5...")
+    task.spawn(startAutoplayer)
 end)
 
--- Key-to-Note (full für dein Sheet: Zahlen, Sharps)
-local keyToNote = {
-    z="C3", x="C#3", c="D3", v="D#3", b="E3", n="F3", m="F#3",
-    a="C4", s="C#4", d="D4", f="D#4", g="E4", h="F4", j="F#4", k="G4", l="G#4", [";"]="A4", ["'"]="A#4",
-    q="C5", w="C#5", e="D5", r="D#5", t="E5", y="F5", u="F#5", i="G5", o="G#5", p="A5", ["["]="A#5", ["]="B5",
-    ["1"]="C#6", ["2"]="D6", ["3"]="D#6", ["4"]="E6", ["5"]="F6", ["6"]="F#6", ["7"]="G6", ["8"]="G#6", ["9"]="A6", ["0"]="A#6"
-}
+-- STOP BUTTON
+ControlSection:NewButton("STOP", "Stoppt alle Eingaben sofort", function()
+    shared.stop = true
+end)
 
--- DEIN See You Again Sheet (paulworker - gekürzt? Nein, full!)
-local sheet = [[[edh] z l [tfh] l z x z l z [ishl] z l [tofh] l z [wyokx] z l z [epfhlz] z l [tosfh] l z x z l z [qpsgh] z l [tosfh] t u o [6wtup] [8wtuo] p t [4qety] y t [8wtu] y u o [6tuop] a p [8wtuo] u y y t [4t] [qety] y u [80wt] t [5ryu] o [6tuop] o [8tyuo] p t [4qety] y y [8wtu] y [5wryu] o [6tuop] s d [8uosf] d s p s [4s] [ipsd] d s [8tuos] p s [4s] [ipsd] d s [8tuos] [6wtu] y u [8wt] y u [8wt] y u [5ryo] u y [4qet] e t [8wty] u y [8wtu] [59we] t e [60wt] e t [8wty] u y [8wtu] [59we] t e [4qet] e t [80wy] t [80wt] w [5wer] t y [6wtu] y u [8wt] y u [8wt] y u [5ryo] u y [4qet] e t [8wty] u y [8wtu] [59we] t e [60wt] e t [8wty] u y [8wtu] [59we] t e [4qet] e t [80wy] t [80wt] [5wry] [6wtu] [8wtu] [8wtu] [5wry] [4eti] [8wtu] [8wtu] [5wry] [6wtu] [8wtu] [8wtu] [5wry] [4eti] [8wtu] [8wt] u o [6tuop] [8tuo] p t [4qety] y t [8wtu] y u o [6tuop] a p [8wtuo] u y y t [4t] [qety] y u [80wt] t [5ryu] o [6wtup] o [8tyuo] p t [4qety] y y [8wtu] y [5y] [wryu] o [6tuop] s d [8uosf] d s p s [4s] [ipsd] d s [8tuos] p s [4s] [ipsd] d s [8tuos] s a [6tuop] [8tuo] [8wtu] s [5ryo] a [4tip] a p [8wtuo] u [8wt] o [5ryop] s d [6uosf] d f [8uos] d f [8uos] d f [5oadh] f d [4tips] p s [8uod] s [8uo] [6wtu] y u [8wt] y u [8wt] y u [5ryo] u y [4qet] e t [8wty] u y [8wtu] [59we] t e [60wt] e t [8wty]
+-- MANUELLE EINGABE
+local Manual = Window:NewTab("Eigene Noten")
+local InputSection = Manual:NewSection("Custom Sheets")
+
+InputSection:NewTextBox("Noten hier einfügen", "Kopiere Piano-Sheets hier rein", function(txt)
+    shared.scr = txt
+end)
+
+InputSection:NewSlider("Dauer (Sekunden)", "Wie lange der Song gehen soll", 500, 30, function(s)
+    shared.ftime = s
+end)
+
+-- INFO TAB
+local Info = Window:NewTab("Info")
+local InfoSection = Info:NewSection("User-Key: " .. "HanfmomentV1")
+InfoSection:NewLabel("Version: omamilch V5")
+InfoSection:NewLabel("Executor-Status: Aktiv")
+
+print("omamilch V5 Test-Ready!")
