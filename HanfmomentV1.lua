@@ -1,41 +1,61 @@
 --[[
-    Script: omamilch V5 (FIXED)
+    Script: omamilch V5 (Internal GUI)
     User: HanfmomentV1
     Key: HanfmomentV1
 ]]
 
-local Title = "omamilch V5 | Fixed"
-local vs = game:GetService("VirtualUser")
-
--- FIX: Sicherstellen, dass die Library existiert, bevor sie aufgerufen wird
-local success, Library = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-end)
-
-if not success or not Library then
-    warn("Fehler: UI Library konnte nicht geladen werden. Nutze Notfall-Modus ohne GUI.")
-    -- Hier könnte man eine einfache Chat-Nachricht senden
-    return
-end
-
--- INITIALISIERUNG
+-- Konfiguration
 shared.stop = false
-shared.ftime = 280 
-shared.scr = "hlz[zt] [xo] [xd] o s|lzx[zuh] [va] [vf] a h" 
+shared.ftime = 280
+shared.scr = "hlz[zt] [xo] [xd] o s|lzx[zuh] [va] [vf] a h" -- Test Song
 
-local Window = Library.CreateLib(Title, "Midnight")
+local vs = game:GetService("VirtualUser")
+local player = game.Players.LocalPlayer
 
--- PLAYER LOGIK (Unverändert, da sie stabil ist)
-local function startAutoplayer()
-    local str = shared.scr
+-- UI ERSTELLUNG (Keine externe Library nötig)
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local StartBtn = Instance.new("TextButton")
+local StopBtn = Instance.new("TextButton")
+local InputBox = Instance.new("TextBox")
+
+ScreenGui.Name = "OmamilchV5_GUI"
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+MainFrame.Size = UDim2.new(0, 250, 0, 300)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Du kannst das Fenster ziehen
+
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "omamilch V5 | HanfmomentV1"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+InputBox.Parent = MainFrame
+InputBox.PlaceholderText = "Noten hier einfuegen..."
+InputBox.Size = UDim2.new(0.9, 0, 0, 100)
+InputBox.Position = UDim2.new(0.05, 0, 0.2, 0)
+InputBox.Text = shared.scr
+InputBox.TextWrapped = true
+
+-- PLAYER LOGIK
+local function playSong()
+    local str = InputBox.Text
     local nstr = string.gsub(str, "[[\]\n]", "")
-    local delay = shared.delay or (shared.ftime / (string.len(nstr) / 1.05))
+    local delay = shared.ftime / (string.len(nstr) / 1.05)
     
     local queue = ""
     local rem = true
 
     for i = 1, #str do
-        if shared.stop == true then break end
+        if shared.stop then break end
         local c = str:sub(i, i)
         
         if c == "[" then
@@ -58,9 +78,6 @@ local function startAutoplayer()
         elseif c == " " then
             task.wait(delay)
             continue
-        elseif c == "|" then
-            task.wait(delay * 2)
-            continue
         end
         
         if not rem then
@@ -75,24 +92,24 @@ local function startAutoplayer()
     end
 end
 
--- GUI TABS
-local Main = Window:NewTab("Test & Play")
-local ControlSection = Main:NewSection("HanfmomentV1 Panel")
-
-ControlSection:NewButton("Start Test-Song", "Testet omamilch V5", function()
+-- BUTTONS
+StartBtn.Parent = MainFrame
+StartBtn.Text = "START"
+StartBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+StartBtn.Size = UDim2.new(0.4, 0, 0, 40)
+StartBtn.Position = UDim2.new(0.05, 0, 0.6, 0)
+StartBtn.MouseButton1Click:Connect(function()
     shared.stop = false
-    task.spawn(startAutoplayer)
+    task.spawn(playSong)
 end)
 
-ControlSection:NewButton("STOP", "Not-Aus", function()
+StopBtn.Parent = MainFrame
+StopBtn.Text = "STOP"
+StopBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+StopBtn.Size = UDim2.new(0.4, 0, 0, 40)
+StopBtn.Position = UDim2.new(0.55, 0, 0.6, 0)
+StopBtn.MouseButton1Click:Connect(function()
     shared.stop = true
 end)
 
-local Manual = Window:NewTab("Noten")
-local InputSection = Manual:NewSection("Eingabe")
-
-InputSection:NewTextBox("Sheets", "Hier einfügen", function(txt)
-    shared.scr = txt
-end)
-
-print("omamilch V5 Fix geladen für HanfmomentV1!")
+print("omamilch V5 stabil geladen für HanfmomentV1!")
