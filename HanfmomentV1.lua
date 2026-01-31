@@ -1,24 +1,31 @@
 --[[
-    Script: omamilch V5 (Test Version)
+    Script: omamilch V5 (FIXED)
     User: HanfmomentV1
     Key: HanfmomentV1
 ]]
 
--[span_0](start_span)- INITIALISIERUNG DER WERTE[span_0](end_span)
-shared.stop = false
-shared.ftime = 280 
-shared.delay = nil
--[span_1](start_span)- Hier ist dein Test-Song direkt als Standard hinterlegt[span_1](end_span)
-shared.scr = "hlz[zt] [xo] [xd] o s|lzx[zuh] [va] [vf] a h|vbn[vpnl] [mf]" 
-
-local Title = "omamilch V5 | Test-Mode"
+local Title = "omamilch V5 | Fixed"
 local vs = game:GetService("VirtualUser")
 
--- UI LIBRARY LADEN
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+-- FIX: Sicherstellen, dass die Library existiert, bevor sie aufgerufen wird
+local success, Library = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+end)
+
+if not success or not Library then
+    warn("Fehler: UI Library konnte nicht geladen werden. Nutze Notfall-Modus ohne GUI.")
+    -- Hier könnte man eine einfache Chat-Nachricht senden
+    return
+end
+
+-- INITIALISIERUNG
+shared.stop = false
+shared.ftime = 280 
+shared.scr = "hlz[zt] [xo] [xd] o s|lzx[zuh] [va] [vf] a h" 
+
 local Window = Library.CreateLib(Title, "Midnight")
 
--[span_2](start_span)- PLAYER LOGIK (Optimiert aus deinem Quellcode)[span_2](end_span)
+-- PLAYER LOGIK (Unverändert, da sie stabil ist)
 local function startAutoplayer()
     local str = shared.scr
     local nstr = string.gsub(str, "[[\]\n]", "")
@@ -28,28 +35,21 @@ local function startAutoplayer()
     local rem = true
 
     for i = 1, #str do
-        if shared.stop == true then 
-            print("Playback gestoppt von HanfmomentV1")
-            break 
-        end
-        
+        if shared.stop == true then break end
         local c = str:sub(i, i)
         
-        -[span_3](start_span)- Akkord-Erkennung[span_3](end_span)
         if c == "[" then
             rem = false
             continue
         elseif c == "]" then
             rem = true
             for ii = 1, #queue do
-                local cc = queue:sub(ii, ii)
-                vs:SetKeyDown(cc)
+                vs:SetKeyDown(queue:sub(ii, ii))
                 task.wait()
             end
             task.wait()
             for ii = 1, #queue do
-                local cc = queue:sub(ii, ii)
-                vs:SetKeyUp(cc)
+                vs:SetKeyUp(queue:sub(ii, ii))
                 task.wait()
             end
             queue = ""
@@ -68,7 +68,6 @@ local function startAutoplayer()
             continue
         end
         
-        -[span_4](start_span)- Einzelne Taste[span_4](end_span)
         vs:SetKeyDown(c)
         task.wait()
         vs:SetKeyUp(c)
@@ -78,36 +77,22 @@ end
 
 -- GUI TABS
 local Main = Window:NewTab("Test & Play")
-local ControlSection = Main:NewSection("HanfmomentV1 Control Panel")
+local ControlSection = Main:NewSection("HanfmomentV1 Panel")
 
--- START BUTTON
-ControlSection:NewButton("Start Test-Song", "Spielt den hinterlegten Song ab", function()
+ControlSection:NewButton("Start Test-Song", "Testet omamilch V5", function()
     shared.stop = false
-    print("Starte omamilch V5...")
     task.spawn(startAutoplayer)
 end)
 
--- STOP BUTTON
-ControlSection:NewButton("STOP", "Stoppt alle Eingaben sofort", function()
+ControlSection:NewButton("STOP", "Not-Aus", function()
     shared.stop = true
 end)
 
--- MANUELLE EINGABE
-local Manual = Window:NewTab("Eigene Noten")
-local InputSection = Manual:NewSection("Custom Sheets")
+local Manual = Window:NewTab("Noten")
+local InputSection = Manual:NewSection("Eingabe")
 
-InputSection:NewTextBox("Noten hier einfügen", "Kopiere Piano-Sheets hier rein", function(txt)
+InputSection:NewTextBox("Sheets", "Hier einfügen", function(txt)
     shared.scr = txt
 end)
 
-InputSection:NewSlider("Dauer (Sekunden)", "Wie lange der Song gehen soll", 500, 30, function(s)
-    shared.ftime = s
-end)
-
--- INFO TAB
-local Info = Window:NewTab("Info")
-local InfoSection = Info:NewSection("User-Key: " .. "HanfmomentV1")
-InfoSection:NewLabel("Version: omamilch V5")
-InfoSection:NewLabel("Executor-Status: Aktiv")
-
-print("omamilch V5 Test-Ready!")
+print("omamilch V5 Fix geladen für HanfmomentV1!")
